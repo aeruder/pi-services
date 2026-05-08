@@ -1,17 +1,48 @@
 name: Build images
 on: push
 
+env:
+  REGISTRY_USER: ${{ github.actor }}
+  REGISTRY_PASSWORD: ${{ github.token }}
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
 jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
 
     steps:
+    - name: login
+      uses: redhat-actions/podman-login@v1
+      with:
+        username: ${{ env.REGISTRY_USER }}
+        password: ${{ env.REGISTRY_PASSWORD }}
+        registry: ${{ env.IMAGE_REGISTRY }}
+
     - uses: actions/checkout@v6
-    - name: syncthing
+
+    - name: helloworld
+      id: build-helloworld
       uses: redhat-actions/buildah-build@v2
       with:
-        image: my-new-image
+        archs: amd64,arm64
+        image: helloworld
         tags: v1
         containerfiles: |
-          ./syncthing/Dockerfile
+          ./helloworld/Dockerfile
+
+    - name: push
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-helloworld.outputs.image }}
+        tags: ${{ steps.build-helloworld.outputs.tags }}
+        registry: ${{ env.IMAGE_REGISTRY }}
+
+    # - name: helloworld
+    #   uses: redhat-actions/buildah-build@v2
+    #   with:
+    #     archs: amd64,arm64
+    #     image: my-new-image
+    #     tags: v1
+    #     containerfiles: |
+    #       ./syncthing/Dockerfile
