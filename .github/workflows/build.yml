@@ -33,9 +33,9 @@ jobs:
         archs: amd64,arm64
         image: helloworld
         tags: v1
-        workdir: helloworld
+        workdir: ./helloworld
         containerfiles: |
-          ./Dockerfile
+          ./helloworld/Dockerfile
 
     - name: syncthing
       id: build-syncthing
@@ -44,9 +44,9 @@ jobs:
         archs: amd64,arm64
         image: syncthing
         tags: v1
-        workdir: syncthing
+        workdir: ./syncthing
         containerfiles: |
-          ./Dockerfile
+          ./syncthing/Dockerfile
 
     - name: push helloworld
       uses: redhat-actions/push-to-registry@v2
