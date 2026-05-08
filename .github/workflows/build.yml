@@ -24,6 +24,7 @@ jobs:
         password: ${{ env.REGISTRY_PASSWORD }}
         registry: ${{ env.IMAGE_REGISTRY }}
 
+    - uses: docker/setup-qemu-action@v4
     - uses: actions/checkout@v6
 
     - name: helloworld
