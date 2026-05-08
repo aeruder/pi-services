@@ -6,6 +6,10 @@ env:
   REGISTRY_PASSWORD: ${{ github.token }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: 'true'
+
 jobs:
   build:
     name: Build image
@@ -34,6 +38,7 @@ jobs:
           ./Dockerfile
 
     - name: syncthing
+      id: build-syncthing
       uses: redhat-actions/buildah-build@v2
       with:
         archs: amd64,arm64
@@ -43,10 +48,17 @@ jobs:
         containerfiles: |
           ./Dockerfile
 
-    - name: push
+    - name: push helloworld
       uses: redhat-actions/push-to-registry@v2
       with:
         image: ${{ steps.build-helloworld.outputs.image }}
         tags: ${{ steps.build-helloworld.outputs.tags }}
+        registry: ${{ env.IMAGE_REGISTRY }}
+
+    - name: push syncthing
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ steps.build-syncthing.outputs.image }}
+        tags: ${{ steps.build-syncthing.outputs.tags }}
         registry: ${{ env.IMAGE_REGISTRY }}
 
