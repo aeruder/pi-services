@@ -29,8 +29,19 @@ jobs:
         archs: amd64,arm64
         image: helloworld
         tags: v1
+        workdir: helloworld
         containerfiles: |
-          ./helloworld/Dockerfile
+          ./Dockerfile
+
+    - name: syncthing
+      uses: redhat-actions/buildah-build@v2
+      with:
+        archs: amd64,arm64
+        image: syncthing
+        tags: v1
+        workdir: syncthing
+        containerfiles: |
+          ./Dockerfile
 
     - name: push
       uses: redhat-actions/push-to-registry@v2
@@ -39,11 +50,3 @@ jobs:
         tags: ${{ steps.build-helloworld.outputs.tags }}
         registry: ${{ env.IMAGE_REGISTRY }}
 
-    # - name: helloworld
-    #   uses: redhat-actions/buildah-build@v2
-    #   with:
-    #     archs: amd64,arm64
-    #     image: my-new-image
-    #     tags: v1
-    #     containerfiles: |
-    #       ./syncthing/Dockerfile
