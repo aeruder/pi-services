@@ -14,6 +14,7 @@ RUN go mod download
 RUN go generate github.com/syncthing/syncthing/lib/api/auto \
     github.com/syncthing/syncthing/cmd/infra/strelaypoolsrv/auto
 
+RUN env
 ARG TARGETOS
 ARG TARGETARCH
 RUN set -x ; \
@@ -28,6 +29,7 @@ RUN set -x ; \
     github.com/syncthing/syncthing/cmd/stdiscosrv \
     github.com/syncthing/syncthing/cmd/strelaysrv \
     github.com/syncthing/syncthing/cmd/syncthing
+RUN find /go/bin
 
 FROM gcr.io/distroless/static-debian13:nonroot AS default-image
 
