@@ -33,7 +33,7 @@ jobs:
         buildah build --manifest helloworld:v1 --platform linux/amd64,linux/arm64/v8 \
            -t helloworld . &&
         buildah manifest push helloworld:v1 --all \
-           --creds "${REGISTRY_USER}:${REGISTRY_PASS}" \
+           --creds "${REGISTRY_USER}:${REGISTRY_PASSWORD}" \
            docker://${IMAGE_REGISTRY}/helloworld:v1
 
     - name: syncthing
@@ -43,5 +43,5 @@ jobs:
         buildah build --manifest syncthing:v1 --platform linux/amd64,linux/arm64/v8 \
            -t syncthing . &&
         buildah manifest push syncthing:v1 --all \
-           --creds "${REGISTRY_USER}:${REGISTRY_PASS}" \
+           --creds "${REGISTRY_USER}:${REGISTRY_PASSWORD}" \
            docker://${IMAGE_REGISTRY}/syncthing:v1
