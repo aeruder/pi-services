@@ -22,7 +22,7 @@ jobs:
       packages: write
       contents: read
     steps:
-    - uses: docker/setup-qemu-action@v4
+#     - uses: docker/setup-qemu-action@v4
     - uses: actions/checkout@v6
     - run: buildah version
 
