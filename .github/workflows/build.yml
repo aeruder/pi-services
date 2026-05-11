@@ -27,6 +27,7 @@ jobs:
 
     - uses: docker/setup-qemu-action@v4
     - uses: actions/checkout@v6
+    - run: buildah version
 
     - name: helloworld
       id: build-helloworld
