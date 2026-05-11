@@ -1,7 +1,8 @@
 ARG SYNCTHING_VERSION=v2.0.16
-
+ARG BUILDPLATFORM
 FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 
+RUN uname -a
 RUN apk --no-cache add ca-certificates git
 WORKDIR /build
 
@@ -10,12 +11,10 @@ RUN git clone --depth 1 --revision refs/tags/"${SYNCTHING_VERSION}" https://gith
 
 WORKDIR /build/syncthing
 
-RUN uname -a
 RUN go mod download
 RUN go generate github.com/syncthing/syncthing/lib/api/auto \
     github.com/syncthing/syncthing/cmd/infra/strelaypoolsrv/auto
 
-RUN env
 ARG TARGETOS
 ARG TARGETARCH
 RUN set -x ; \
@@ -30,13 +29,11 @@ RUN set -x ; \
     github.com/syncthing/syncthing/cmd/stdiscosrv \
     github.com/syncthing/syncthing/cmd/strelaysrv \
     github.com/syncthing/syncthing/cmd/syncthing
-RUN find /go/bin
+RUN cp -v "$(find "$GOPATH" -name syncthing -type f -print -quit)" /tmp/syncthing
 
 FROM gcr.io/distroless/static-debian13:nonroot AS default-image
 
-ARG TARGETOS
-ARG TARGETARCH
-COPY --from=builder /go/bin/${TARGETOS}_${TARGETARCH}/syncthing /syncthing
+COPY --from=builder /tmp/syncthing /syncthing
 
 ENTRYPOINT ["/syncthing"]
 CMD ["serve"]
