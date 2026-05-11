@@ -10,6 +10,7 @@ RUN git clone --depth 1 --revision refs/tags/"${SYNCTHING_VERSION}" https://gith
 
 WORKDIR /build/syncthing
 
+RUN uname -a
 RUN go mod download
 RUN go generate github.com/syncthing/syncthing/lib/api/auto \
     github.com/syncthing/syncthing/cmd/infra/strelaypoolsrv/auto
