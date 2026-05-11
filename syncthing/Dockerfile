@@ -15,7 +15,7 @@ ENV TARGETOS="${TARGETOS}" TARGETARCH="${TARGETARCH}"
 RUN cd syncthing && go run build.go
 RUN cd syncthing && cp bin/syncthing /tmp/syncthing
 
-FROM gcr.io/distroless/static-debian13:nonroot AS default-image
+FROM --platform=$TARGETPLATFORM gcr.io/distroless/static-debian13:nonroot AS default-image
 
 COPY --from=builder /tmp/syncthing /syncthing
 
