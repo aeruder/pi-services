@@ -1,6 +1,6 @@
 ARG SYNCTHING_VERSION=v2.0.16
 
-FROM golang:1.26-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
 
 RUN apk --no-cache add ca-certificates git
 WORKDIR /build
@@ -8,6 +8,10 @@ WORKDIR /build
 ARG SYNCTHING_VERSION
 RUN git clone --tags https://github.com/syncthing/syncthing
 RUN cd syncthing && git checkout "${SYNCTHING_VERSION}"
+
+ARG TARGETOS
+ARG TARGETARCH
+ENV TARGETOS="${TARGETOS}" TARGETARCH="${TARGETARCH}"
 RUN cd syncthing && go run build.go
 RUN cd syncthing && cp bin/syncthing /tmp/syncthing
 
