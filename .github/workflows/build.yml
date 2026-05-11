@@ -15,54 +15,33 @@ jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
+    container:
+      image: quay.io/containers/buildah:latest
+      options: --security-opt seccomp=unconfined --security-opt apparmor=unconfined --device /dev/fuse:rw 
     permissions:
       packages: write
+      contents: read
     steps:
-    - name: login
-      uses: redhat-actions/podman-login@v1
-      with:
-        username: ${{ env.REGISTRY_USER }}
-        password: ${{ env.REGISTRY_PASSWORD }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-
     - uses: docker/setup-qemu-action@v4
     - uses: actions/checkout@v6
     - run: buildah version
-    - run: sudo apt-get update && sudo apt-get install buildah
 
     - name: helloworld
-      id: build-helloworld
-      uses: redhat-actions/buildah-build@v2
-      with:
-        archs: amd64,arm64
-        image: helloworld
-        tags: v1
-        workdir: ./helloworld
-        containerfiles: |
-          ./helloworld/Dockerfile
+      run: |
+        cd helloworld &&
+        buildah manifest create helloworld:v1 &&
+        buildah build --manifest helloworld:v1 --platform linux/amd64,linux/arm64/v8 \
+           -t helloworld . &&
+        buildah manifest push helloworld:v1 --all \
+           --creds "${REGISTRY_USER}:${REGISTRY_PASS}" \
+           docker://${IMAGE_REGISTRY}/helloworld:v1
 
     - name: syncthing
-      id: build-syncthing
-      uses: redhat-actions/buildah-build@v2
-      with:
-        archs: amd64,arm64
-        image: syncthing
-        tags: v1
-        workdir: ./syncthing
-        containerfiles: |
-          ./syncthing/Dockerfile
-
-    - name: push helloworld
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-helloworld.outputs.image }}
-        tags: ${{ steps.build-helloworld.outputs.tags }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-
-    - name: push syncthing
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-syncthing.outputs.image }}
-        tags: ${{ steps.build-syncthing.outputs.tags }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-
+      run: |
+        cd syncthing &&
+        buildah manifest create syncthing:v1 &&
+        buildah build --manifest syncthing:v1 --platform linux/amd64,linux/arm64/v8 \
+           -t syncthing . &&
+        buildah manifest push syncthing:v1 --all \
+           --creds "${REGISTRY_USER}:${REGISTRY_PASS}" \
+           docker://${IMAGE_REGISTRY}/syncthing:v1
